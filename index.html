@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <title>الاستعلام عن التأشيرة</title>
+</head>
+
+<body>
+
+  <h2>الاستعلام عن التأشيرة</h2>
+
+  <input id="issued" placeholder="الرقم الصادر"><br><br>
+  <input id="record" placeholder="رقم السجل"><br><br>
+
+  <button onclick="getCaptcha()">جلب رمز الصورة</button>
+
+  <div id="captchaBox"></div>
+
+  <br>
+
+  <input id="code" placeholder="رمز الصورة"><br><br>
+
+  <button onclick="sendCaptcha()">إرسال</button>
+
+  <div id="result"></div>
+
+
+  <script>
+
+    async function getCaptcha() {
+
+      const issued = document.getElementById("issued").value;
+      const record = document.getElementById("record").value;
+
+      const res = await fetch("/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ issued, record })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+
+        document.getElementById("captchaBox").innerHTML =
+          `<img src="${data.captcha}?t=${Date.now()}">`;
+
+      } else {
+        alert("خطأ");
+      }
+    }
+
+
+    async function sendCaptcha() {
+
+      const code = document.getElementById("code").value;
+
+      const res = await fetch("/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+
+        document.getElementById("result").innerHTML =
+          `<img src="${data.result}?t=${Date.now()}">`;
+
+      } else {
+        alert("فشل");
+      }
+    }
+
+  </script>
+
+</body>
+
+</html>
